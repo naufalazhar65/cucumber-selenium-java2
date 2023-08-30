@@ -1,31 +1,32 @@
 package StepDefinitions;
 
-import org.junit.Assert;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.*;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
-import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
 
 import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
 public class checkout {
-
-    WebDriver driver;
-
+    private WebDriver driver;
+    
     @Before
     public void setUp() {
-        System.setProperty("webdriver.chrome.driver", "/Users/naufalazhar/Documents/ChromeDriver/chromedriver");
-        System.setProperty("webdriver.chrome.silentOutput", "true");
-        driver = new ChromeDriver();
+        // Set up Chrome driver and wait times
+    	ChromeOptions chromeOptions = new ChromeOptions();
+        chromeOptions.addArguments("--headless");
+        chromeOptions.addArguments("--disable-gpu");
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver(chromeOptions);
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.manage().timeouts().pageLoadTimeout(20, TimeUnit.SECONDS);
         driver.manage().window().maximize();
@@ -33,6 +34,7 @@ public class checkout {
 
     @After
     public void tearDown() {
+        // Close the driver after each test case
         driver.quit();
     }
     

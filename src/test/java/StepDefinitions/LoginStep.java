@@ -1,32 +1,32 @@
 package StepDefinitions;
 
-import org.junit.Assert;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.*;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 
-import io.cucumber.java.After;
-import io.cucumber.java.Before;
-import io.cucumber.java.en.And;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
 
 import static org.junit.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import java.util.concurrent.TimeUnit;
 
 public class LoginStep {
-
-    WebDriver driver;
-
+    private WebDriver driver;
+    
     @Before
     public void setUp() {
         // Set up Chrome driver and wait times
-        System.setProperty("webdriver.chrome.driver", "/Users/naufalazhar/Documents/ChromeDriver/chromedriver");
-        System.setProperty("webdriver.chrome.silentOutput", "true");
-        driver = new ChromeDriver();
+    	ChromeOptions chromeOptions = new ChromeOptions();
+        chromeOptions.addArguments("--headless");
+        chromeOptions.addArguments("--disable-gpu");
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver(chromeOptions);
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.manage().timeouts().pageLoadTimeout(20, TimeUnit.SECONDS);
         driver.manage().window().maximize();
@@ -37,11 +37,53 @@ public class LoginStep {
         // Close the driver after each test case
         driver.quit();
     }
-    
-//    User opens the login page successfully
-    @Given("User navigates to the login page")
-    public void user_navigates_to_the_login_page() {
-         driver.navigate().to("https://www.saucedemo.com/");
+
+    @Given("I am on the SauceDemo login page")
+    public void iAmOnTheLoginPage() {
+        driver.get("https://www.saucedemo.com/");
+    }
+
+    @When("I enter username {string} and password {string}")
+    public void iEnterUsernameAndPassword(String username, String password) {
+        WebElement usernameField = driver.findElement(By.id("user-name"));
+        WebElement passwordField = driver.findElement(By.id("password"));
+
+        usernameField.sendKeys(username);
+        passwordField.sendKeys(password);
+    }
+
+    @And("I click the login button")
+    public void iClickTheLoginButton() {
+        WebElement loginButton = driver.findElement(By.id("login-button"));
+        loginButton.click();
+    }
+
+    @Then("I should be on the inventory page")
+    public void iShouldBeOnTheInventoryPage() {
+        String currentUrl = driver.getCurrentUrl();
+        assertEquals("https://www.saucedemo.com/inventory.html", currentUrl);
+    }
+
+    @Then("I should see an error message")
+    public void iShouldSeeAnErrorMessage() {
+        WebElement errorElement = driver.findElement(By.cssSelector("[data-test='error']"));
+        assertTrue(errorElement.isDisplayed());
+    }
+
+    @And("User clicks the logout button")
+    public void user_clicks_the_logout_button() throws InterruptedException {
+        WebElement menuButton = driver.findElement(By.id("react-burger-menu-btn"));
+        menuButton.click();
+        WebElement logoutButton = driver.findElement(By.id("logout_sidebar_link"));
+        Thread.sleep(2000);
+
+        logoutButton.click();
+    }
+
+    @Then("The user should be logged out successfully")
+    public void the_user_should_be_logged_out_successfully() {
+        WebElement loginButton = driver.findElement(By.id("login-button"));
+        assertEquals(true, loginButton.isDisplayed());
     }
 
     @Then("The login page should be displayed")
@@ -53,73 +95,6 @@ public class LoginStep {
         assertEquals(true, usernameField.isDisplayed());
         assertEquals(true, passwordField.isDisplayed());
         assertEquals(true, loginButton.isDisplayed());
-        driver.quit();
-    }
-    
-//    User logs in with valid credentials
-    @Given("User is on the login page")
-    public void user_is_on_the_login_page() {
-        driver.navigate().to("https://www.saucedemo.com/");
     }
 
-    @When("User enters valid {string} and {string}")
-    public void user_enters_valid_username_and_password(String username, String password) {
-        WebElement usernameField = driver.findElement(By.id("user-name"));
-        WebElement passwordField = driver.findElement(By.id("password"));
-
-        usernameField.sendKeys(username);
-        passwordField.sendKeys(password);
-    }
-
-    @And("User clicks the login button")
-    public void user_clicks_the_login_button() throws InterruptedException {
-        WebElement loginButton = driver.findElement(By.id("login-button"));
-        loginButton.click();
-		Thread.sleep(3000);
-    }
-
-    @Then("The user should be logged in successfully")
-    public void the_user_should_be_logged_in_successfully() throws InterruptedException {
-		Thread.sleep(2000);
-		Assert.assertTrue(driver.findElement(By.id("inventory_container")).isDisplayed());
-        driver.quit();
-    }
-    
-	@Then("Failed login and showing message")
-	public void Failed_login_and_showing_message() {
-		Assert.assertTrue(driver.findElement(By.xpath("//div[@class='error-message-container error']")).isDisplayed());
-	}
-	
-
-//    User logs out successfully
-    @Given("User is logged in")
-    public void user_is_logged_in() {
-        driver.navigate().to("https://www.saucedemo.com/");
-        WebElement usernameField = driver.findElement(By.id("user-name"));
-        WebElement passwordField = driver.findElement(By.id("password"));
-        WebElement loginButton = driver.findElement(By.id("login-button"));
-
-        usernameField.sendKeys("standard_user");
-        passwordField.sendKeys("secret_sauce");
-
-        loginButton.click();
-    }
-
-    @When("User clicks the logout button")
-    public void user_clicks_the_logout_button() throws InterruptedException {
-        WebElement menuButton = driver.findElement(By.id("react-burger-menu-btn"));
-        menuButton.click();
-        WebElement logoutButton = driver.findElement(By.id("logout_sidebar_link"));
-        Thread.sleep(2000);
-        
-        logoutButton.click();
-    }
-
-    @Then("The user should be logged out successfully")
-    public void the_user_should_be_logged_out_successfully() {
-        WebElement loginButton = driver.findElement(By.id("login-button"));
-        
-        assertEquals(true, loginButton.isDisplayed());
-        driver.quit();
-    }
 }

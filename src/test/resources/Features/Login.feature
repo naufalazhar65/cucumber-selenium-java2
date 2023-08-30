@@ -1,34 +1,36 @@
 Feature: Login Functionality Test
 
-  @loginpage
   Scenario: User opens the login page successfully
-    Given User navigates to the login page
+    Given I am on the SauceDemo login page
     Then The login page should be displayed
 
-  @validlogin
-  Scenario Outline: User logs in with valid credentials
-    Given User is on the login page
-    When User enters valid "<username>" and "<password>"
-    And User clicks the login button
-    Then The user should be logged in successfully
+  Scenario Outline: login with valid account
+    Given I am on the SauceDemo login page
+    When I enter username "<username>" and password "<password>"
+    And I click the login button
+    Then I should be on the inventory page
 
     Examples: 
       | username      | password     |
       | standard_user | secret_sauce |
 
-  @invalidlogin
-  Scenario Outline: User logs in with valid credentials
-    Given User is on the login page
-    When User enters valid "<username>" and "<password>"
-    And User clicks the login button
-    Then Failed login and showing message
+  Scenario Outline: Login with invalid account
+    Given I am on the SauceDemo login page
+    When I enter username "<username>" and password "<password>"
+    And I click the login button
+    Then I should see an error message
 
     Examples: 
       | username | password |
       | xx       | xx       |
 
-  @logout
-  Scenario: User logs out successfully
-    Given User is logged in
-    When User clicks the logout button
+  Scenario Outline: User logs out successfully
+    Given I am on the SauceDemo login page
+    When I enter username "<username>" and password "<password>"
+    And I click the login button
+    And User clicks the logout button
     Then The user should be logged out successfully
+
+    Examples: 
+      | username      | password     |
+      | standard_user | secret_sauce |
